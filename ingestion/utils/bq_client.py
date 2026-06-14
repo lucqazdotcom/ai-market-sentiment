@@ -9,7 +9,7 @@ def get_client():
     return bigquery.Client(project=os.getenv("GCP_PROJECT_ID"))
 
 
-def insert_rows(dataset: str, table: str, rows: list):
+def insert_rows(rows: list, dataset: str, table: str):
     client = get_client()
     table_ref = f"{os.getenv('GCP_PROJECT_ID')}.{dataset}.{table}"
 
@@ -17,7 +17,6 @@ def insert_rows(dataset: str, table: str, rows: list):
     job.result()
 
     print(f"inserted {len(rows)} rows into {table_ref}")
-
 
 
 def run_query(sql: str):

@@ -1,20 +1,14 @@
 import os
 from dotenv import load_dotenv
-from ingestion.utils.bq_client import insert_rows
+# from ingestion.utils.bq_client import insert_rows
+from headline_scraper import run_scraper
 
 
 load_dotenv()
 
 
 def main():
-    rows = [
-            {
-                "title": "test headline",
-                "value": "hello world"
-                }
-            ]
-
-    insert_rows("raw", "test", rows)
+    run_scraper()
 
 
 if __name__ == "__main__":
