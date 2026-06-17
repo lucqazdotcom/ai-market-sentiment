@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 import os
 
 from company_aliases import COMPANIES
-from ingestion.utils.bq_client import insert_rows
+from ingestion.utils.bq_client import write_to_big_query
 
 load_dotenv()
 
@@ -20,7 +20,7 @@ def run_headline_scraper():
 
     for company, query_string in COMPANIES.items():
         data = get_articles(BASE_URL, company, query_string)
-        write_to_bq(data)
+        write_to_big_query(data, "raw", "headlines")
 
 
 def get_articles(url: str, company: str, query_string: str) -> object:
@@ -38,8 +38,3 @@ def get_articles(url: str, company: str, query_string: str) -> object:
         cleaned_articles.append({k: article.get(k) for k in target_keys})
 
     return cleaned_articles
-
-
-def write_to_bq(data: list, batch_size: int = 500) -> None:
-    for i in range(0, len(data), batch_size):
-        insert_rows(data[i:i + batch_size], "raw", "headlines")

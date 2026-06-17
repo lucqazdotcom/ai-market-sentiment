@@ -1,6 +1,7 @@
 import requests
 from dotenv import load_dotenv
 import os
+from company_aliases import COMPANIES, ROLES
 
 load_dotenv()
 
@@ -19,5 +20,7 @@ def run_job_scrapper():
     BASE_URL = "https://api.adzuna.com/v1/api/jobs/us/search/1"
 
 
-def get_open_roles():
+def get_open_roles(url: str) -> None:
+
+
 

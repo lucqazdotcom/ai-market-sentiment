@@ -9,14 +9,15 @@ def get_client():
     return bigquery.Client(project=os.getenv("GCP_PROJECT_ID"))
 
 
-def insert_rows(rows: list, dataset: str, table: str):
+def write_to_big_query(data: list, dataset: str, table: str, batch_size: int = 500):
     client = get_client()
     table_ref = f"{os.getenv('GCP_PROJECT_ID')}.{dataset}.{table}"
 
-    job = client.load_table_from_json(rows, table_ref)
-    job.result()
+    for i in range(0, len(data), batch_size):
+        job = client.load_table_from_json(data[i:i + batch_size], table_ref)
+        job.result()
 
-    print(f"inserted {len(rows)} rows into {table_ref}")
+    print(f"inserted {len(data)} rows into {table_ref}")
 
 
 def run_query(sql: str):
