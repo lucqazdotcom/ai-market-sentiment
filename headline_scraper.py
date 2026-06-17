@@ -15,7 +15,7 @@ query_params = {
 }
 
 
-def run_scraper():
+def run_headline_scraper():
     BASE_URL = "https://newsapi.org/v2/everything?"
 
     for company, query_string in COMPANIES.items():
