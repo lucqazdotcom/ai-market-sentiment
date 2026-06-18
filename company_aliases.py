@@ -8,25 +8,14 @@ COMPANIES = {
     "Tesla": "Tesla"
 }
 
-ROLES = {
-    "engineering": [
-        "software engineer",
-        "software developer",
-        "developer engineer"
-    ],
-    "ai_ml": [
-        "machine learning engineer",
-        "ai engineer",
-        "research engineer"
-    ],
-    "platform_infra": [
-        "platform engineer",
-        "site reliability engineer",
-        "cloud engineer"
-    ],
-    "leadership": [
-        "engineering manager",
-        "staff engineer",
-        "principal engineer"
-    ]
-}
+ROLES = [
+    "software engineer",
+    "software developer",
+    "machine learning engineer",
+    "ai engineer",
+    "platform engineer",
+    "site reliability engineer",
+    "cloud engineer"
+    "engineering manager",
+    "staff engineer",
+]
