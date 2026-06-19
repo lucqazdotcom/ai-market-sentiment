@@ -1,6 +1,8 @@
 import requests
-from dotenv import load_dotenv
 import os
+import time
+from dotenv import load_dotenv
+from datetime import datetime
 from company_aliases import COMPANIES, ROLES
 from ingestion.utils.bq_client import write_to_big_query
 
@@ -18,40 +20,48 @@ base_query_params = {
     # "page_number": 1,
 }
 search_candidates = []
-job_postings = []
 
 
 def run_job_scrapper():
     create_search_candidate()
-    get_open_roles(BASE_URL)
+    # print(len(search_candidates))
+    get_open_roles(BASE_URL, search_candidates)
 
 
-def get_open_roles(url: str):
-    for i in range(len(search_candidates) + 1):
+def get_open_roles(url: str, search_input: list):
+    job_inventory = []
+    for i, search in enumerate(search_input):
         params = {
             **base_query_params,
-            "company": search_candidates[i].get("company_search_term"),
-            "title_only": search_candidates[i].get("role_search_term")
+            "company": search.get("company_search_term"),
+            "title_only": search.get("role_search_term")
         }
 
-        # print(params)
-        print(f"{BASE_URL}?{params}")
+        response = requests.get(BASE_URL, params=params).json()
+        print(response.get("count"))
+        job_inventory.append({
+            "count": response.get("count"),
+            "company": search.get("company_name"),
+            "role_group": search.get("role_group"),
+            "search_term": search.get("role_search_term"),
+            "country": "us",
+            "source": "adzuna",
+            "created_at": datetime.now(),
+        })
 
-        response = requests.get(BASE_URL, params=params)
-        print(response)
-
-        if i > 1:
-            break
+        # NOTE: Adzuna rate limit @ 25 hits/ min - below is a helper
+        if (i + 1) % 25 == 0:
+            print(job_inventory)
+            time.sleep(60)
 
 
 def create_search_candidate():
     for company, alias in COMPANIES.items():
-        for role_name in ROLES:
-            search_candidates.append({
-                "company_name": company,
-                "company_search_term": alias,
-                "role_search_term": role_name
-            })
-
-
-# def query_roles() -> str:
+        for role_group, roles in ROLES.items():
+            for role_name in roles:
+                search_candidates.append({
+                    "company_name": company,
+                    "company_search_term": alias,
+                    "role_group": role_group,
+                    "role_search_term": role_name
+                })

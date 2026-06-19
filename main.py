@@ -11,7 +11,11 @@ load_dotenv()
 def main():
     # run_headline_scraper()
     run_job_scrapper()
+    timer()
 
+def timer():
+    for i in range(0, 1000):
+        print(i)
 
 if __name__ == "__main__":
     main()

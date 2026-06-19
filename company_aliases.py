@@ -1,21 +1,33 @@
 COMPANIES = {
     "Microsoft": "Microsoft",
-    "Alphabet": "Alphabet Google",
+    "Alphabet": "Google",
     "Meta": "Meta",
     "Nvidia": "Nvidia",
-    "Amazon": "Amazon AWS",
+    "Amazon": "Amazon",
     "Apple": "Apple",
     "Tesla": "Tesla"
 }
 
-ROLES = [
-    "software engineer",
-    "software developer",
-    "machine learning engineer",
-    "ai engineer",
-    "platform engineer",
-    "site reliability engineer",
-    "cloud engineer"
-    "engineering manager",
-    "staff engineer",
-]
+ROLES = {
+    "engineering": [
+        "software engineer",
+        "software developer",
+        "senior software engineer",
+        "senior software developer",
+        "staff engineer",
+    ],
+    "ai_ml": [
+        "machine learning engineer",
+        "ai engineer",
+    ],
+    "platform_infa": [
+        "platform engineer",
+        "site reliability engineer",
+    ],
+    "cloud": [
+        "cloud engineer"
+    ],
+    "management": [
+        "engineering manager",
+    ]
+}
