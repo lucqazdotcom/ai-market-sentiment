@@ -2,7 +2,7 @@ import requests
 import os
 import time
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, date
 from company_aliases import COMPANIES, ROLES
 from ingestion.utils.bq_client import write_to_big_query
 
@@ -24,7 +24,6 @@ search_candidates = []
 
 def run_job_scrapper():
     create_search_candidate()
-    # print(len(search_candidates))
     get_open_roles(BASE_URL, search_candidates)
 
 
@@ -46,12 +45,16 @@ def get_open_roles(url: str, search_input: list):
             "search_term": search.get("role_search_term"),
             "country": "us",
             "source": "adzuna",
-            "created_at": datetime.now(),
+            "date": date.today().isoformat(),
+            "run_timestamp": datetime.now().isoformat()
         })
 
         # NOTE: Adzuna rate limit @ 25 hits/ min - below is a helper
         if (i + 1) % 25 == 0:
-            print(job_inventory)
+            write_to_big_query(job_inventory, "raw", "job_inventory")
+            job_inventory.clear()
+            print(
+                f"Job inventory cleared with {len(job_inventory)} remaining.")
             time.sleep(60)
 
 

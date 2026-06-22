@@ -12,9 +12,6 @@ ROLES = {
     "engineering": [
         "software engineer",
         "software developer",
-        "senior software engineer",
-        "senior software developer",
-        "staff engineer",
     ],
     "ai_ml": [
         "machine learning engineer",
