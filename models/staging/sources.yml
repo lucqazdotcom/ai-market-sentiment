@@ -1,0 +1,6 @@
+sources:
+  - name: raw
+    database: ai-sentiment-analysis-498901
+    schema: raw
+    tables:
+      - name: job_inventory

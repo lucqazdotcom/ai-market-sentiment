@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: mart_company_daily_job_inventory
+    description: "yup"
+    columns:
+      - name: company
+        description: "Company being tracked."
+        tests:
+          - not_null
+
+      - name: day_ran
+        description: "Date for when query ran."
+        tests:
+          - not_null
+
+      - name: total_visible_roles
+        description: "Total job inventory across all search terms."
+        tests:
+          - not_null
