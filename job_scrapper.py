@@ -3,7 +3,8 @@ import os
 import time
 from dotenv import load_dotenv
 from datetime import datetime, date
-from company_aliases import COMPANIES, ROLES
+from constants.companies import COMPANIES
+from constants.roles import ROLES
 from ingestion.utils.bq_client import write_to_big_query
 
 load_dotenv()
