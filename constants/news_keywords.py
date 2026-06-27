@@ -20,7 +20,6 @@ TRUSTED_DOMAINS = ",".join([
     "arstechnica.com",
     "venturebeat.com",
     "thenextweb.com",
-    "zdnet.com",
     "technologyreview.com",
     "infoworld.com",
     "computerworld.com",
@@ -30,146 +29,93 @@ TRUSTED_DOMAINS = ",".join([
     "github.blog",
 ])
 
-ROLE_ANCHORS = {
-    "individual": [
-        '"software engineer"',
-        '"software developer"',
-        '"frontend developer"',
-        '"backend developer"',
-        '"full-stack developer"',
-        '"junior developer"',
-        '"junior engineer"',
-        '"entry-level developer"',
-        '"senior engineer"',
-        '"software programmer"',
-    ],
-    "collective": [
-        '"engineering team"',
-        '"developer workforce"',
-        '"tech workforce"',
-        '"engineering headcount"',
-        '"software workforce"',
-        '"development team"',
-    ]
-}
-
 SIGNAL_TOPICS = {
+
     "workforce_reduction": {
-        "phrases": [
+        "description": "Concrete layoff and headcount cut events in engineering orgs",
+        "match_units": [
             '"engineering layoffs"',
             '"developer layoffs"',
-            '"tech layoffs"',
-            '"headcount reduction"',
-            '"workforce reduction"',
-            '"reduction in force"',
-            '"job cuts" "engineers"',
-            '"let go" "engineers"',
-            '"position eliminated" "software"',
+            '"engineering headcount"',
+            '"software engineering" AND "layoffs"',
+            '"software engineer" AND "job cuts"',
+            '"developers" AND "laid off"',
+            '"engineering team" AND "headcount reduction"',
+            '"engineering team" AND "workforce reduction"',
+            '"developer workforce" AND "reduction"',
+            '"software" AND "reduction in force"',
         ],
-        "role_anchor_group": "collective",
     },
+
     "ai_displacement": {
-        "phrases": [
+        "description": "AI framed as directly replacing or removing need for engineers",
+        "match_units": [
             '"replace software engineers"',
             '"replace developers"',
             '"replacing programmers"',
             '"AI replaces coders"',
-            '"fewer engineers" "AI"',
-            '"fewer developers" "AI"',
+            '"AI" AND "fewer engineers"',
+            '"AI" AND "fewer developers"',
             '"no longer need developers"',
             '"code without engineers"',
-            '"vibe coding"',
-            '"one engineer" "AI"',
-            '"software without developers"',
+            '"AI" AND "one engineer"',
         ],
-        "role_anchor_group": "individual",
     },
+
     "hiring_contraction": {
-        "phrases": [
-            '"hiring freeze" "engineers"',
-            '"pause hiring" "developers"',
-            '"not hiring" "software"',
-            '"cut engineering hiring"',
+        "description": "Reduced or frozen hiring for engineering roles",
+        "match_units": [
+            '"hiring freeze" AND "engineers"',
+            '"hiring freeze" AND "developers"',
+            '"pause hiring" AND "developers"',
+            '"not hiring" AND "software engineers"',
             '"fewer engineering jobs"',
             '"shrinking engineering"',
         ],
-        "role_anchor_group": "individual",
     },
+
     "junior_displacement": {
-        "phrases": [
-            '"junior developer" "AI"',
-            '"junior engineer" "AI"',
-            '"entry-level" "software" "AI"',
-            '"coding bootcamp" "jobs"',
-            '"new graduate" "software" "hiring"',
-            '"internship" "software engineer" "AI"',
-            '"junior roles" "AI"',
+        "description": "Entry-level and junior roles — the canary signal",
+        "match_units": [
+            '"junior developer" AND "AI"',
+            '"junior engineer" AND "AI"',
+            '"entry-level job" AND "software" AND "AI"',
+            '"new graduate" AND "software engineer"',
+            '"coding bootcamp" AND "jobs"',
+            '"internship" AND "software engineer" AND "AI"',
         ],
-        "role_anchor_group": None,
     },
+
     "ai_productivity": {
-        "phrases": [
-            '"developer productivity" "AI"',
-            '"engineering productivity" "AI"',
+        "description": "AI raising developer output — VADER scores the framing",
+        "match_units": [
+            '"developer productivity" AND "AI"',
+            '"engineering productivity" AND "AI"',
             '"AI coding assistant"',
-            '"GitHub Copilot" "productivity"',
-            '"Cursor" "productivity"',
-            '"Claude" "productivity"',
-            '"Codex" "productivity"',
-            '"code generation" "developer"',
-            '"10x engineer" "AI"',
+            '"GitHub Copilot" AND "productivity"',
             '"AI pair programmer"',
-            '"software velocity" "AI"',
+            '"software velocity" AND "AI"',
         ],
-        "role_anchor_group": "individual",
     },
+
     "corporate_restructuring": {
-        "phrases": [
-            '"AI" "reduce headcount"',
-            '"AI" "fewer employees" "engineering"',
-            '"AI" "right-size" "engineering"',
-            '"AI" "efficiency" "headcount"',
-            '"generative AI" "workforce"',
-            '"AI" "restructuring" "software"',
-            '"AI" "cost savings" "engineering"',
+        "description": "Earnings call language citing AI as reason to cut engineering",
+        "match_units": [
+            '"AI" AND "reduce headcount" AND "engineering"',
+            '"AI" AND "efficiency" AND "engineering team"',
+            '"generative AI" AND "workforce"',
+            '"AI" AND "restructuring" AND "software"',
         ],
-        "role_anchor_group": "collective",
     },
+
     "talent_demand": {
-        "phrases": [
+        "description": "Demand for engineers increasing",
+        "match_units": [
             '"engineer shortage"',
             '"developer shortage"',
-            '"engineering talent" "demand"',
-            '"hiring engineers"',
-            '"demand for developers"',
-            '"software engineer jobs" "growth"',
-            '"AI engineer" "hiring"',
-            '"AI fluent" "developer"',
+            '"AI engineer" AND "hiring"',
+            '"demand" AND "software engineers"',
+            '"engineering talent" AND "demand"',
         ],
-        "role_anchor_group": "individual",
-    },
-    "role_creation": {
-        "phrases": [
-            '"AI engineer"',
-            '"prompt engineer"',
-            '"LLM engineer"',
-            '"ML engineer" "hiring"',
-            '"AI developer" "jobs"',
-            '"new engineering roles"',
-            '"AI infrastructure" "engineer"',
-        ],
-        "role_anchor_group": None,
-    },
-    "talent_pipeline": {
-        "phrases": [
-            '"CS enrollment"',
-            '"computer science enrollment"',
-            '"computer science degree" "enrollment"',
-            '"coding bootcamp" "enrollment"',
-            '"coding bootcamp" "closing"',
-            '"software engineering degree" "enrollment"',
-            '"STEM" "software" "enrollment"',
-        ],
-        "role_anchor_group": None,
     },
 }

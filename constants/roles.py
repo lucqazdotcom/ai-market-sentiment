@@ -2,6 +2,7 @@ ROLES = {
     "engineering": [
         "software engineer",
         "software developer",
+        "developer"
     ],
     "ai_ml": [
         "machine learning engineer",
