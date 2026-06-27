@@ -4,6 +4,7 @@ import os
 from datetime import datetime
 from constants.news_keywords import TRUSTED_DOMAINS, SIGNAL_TOPICS
 from ingestion.utils.bq_client import write_to_big_query
+from sentiment_analysis import analyze
 
 load_dotenv()
 
@@ -22,8 +23,15 @@ def run_headline_scraper():
     query_group = build_query()
 
     for query_obj in query_group:
-        data = get_articles(BASE_URL, query_obj)
-        write_to_big_query(data, "raw", "headlines")
+
+        stop = 0
+        while stop < 3:
+            data = get_articles(BASE_URL, query_obj)
+            print(data[stop].get("title"))
+            analyze(data[stop].get("title"))
+            stop+=1
+
+        # write_to_big_query(data, "raw", "headlines")
 
 
 def build_query() -> list:
