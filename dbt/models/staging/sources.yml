@@ -4,3 +4,4 @@ sources:
     schema: raw
     tables:
       - name: job_inventory
+      - name: headlines

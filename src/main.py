@@ -9,8 +9,8 @@ load_dotenv()
 
 
 def main():
-    # run_headline_scraper()
-    run_job_scrapper()
+    run_headline_scraper()
+    # run_job_scrapper()
 
 
 if __name__ == "__main__":
