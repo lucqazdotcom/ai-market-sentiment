@@ -5,6 +5,7 @@ from datetime import datetime
 from constants.news_keywords import TRUSTED_DOMAINS, SIGNAL_TOPICS
 from ingestion.utils.bq_client import write_to_big_query
 from sentiment_analysis import analyze
+from utils.hash import hash_this
 
 load_dotenv()
 
@@ -23,15 +24,8 @@ def run_headline_scraper():
     query_group = build_query()
 
     for query_obj in query_group:
-
-        stop = 0
-        while stop < 3:
-            data = get_articles(BASE_URL, query_obj)
-            print(data[stop].get("title"))
-            analyze(data[stop].get("title"))
-            stop+=1
-
-        # write_to_big_query(data, "raw", "headlines")
+        data = get_articles(BASE_URL, query_obj)
+        write_to_big_query(data, "raw", "headlines")
 
 
 def build_query() -> list:
@@ -51,16 +45,27 @@ def get_articles(url: str, query_obj: object) -> object:
     response = requests.get(url, params=params).json()
     articles = response.get("articles")
     cleaned_articles = []
-    target_keys = ("source_id", "source_name", "author", "title",
+    target_keys = ("id", "source_id", "source_name", "author", "title",
                    "description", "url", "publish_date", "insert_date",
-                   "content", "signal_topic", "search_query")
+                   "content", "signal_topic", "search_query",
+                   "sentiment_compound_score", "sentiment_divergence")
     for article in articles:
+
+        sentiment_score = analyze({
+            "title": article.get("title"),
+            "description": article.get("description")
+        })
+        article["id"] = hash_this(
+            f"{article.get('url')}{article.get('publish_date')}"
+        )
         article["source_id"] = article.get("source", {}).get("id")
         article["source_name"] = article.get("source", {}).get("name")
         article["publish_date"] = article.get("publishedAt")
         article["insert_date"] = datetime.now().isoformat()
         article["signal_topic"] = query_obj.get("signal_topic")
         article["search_query"] = query_obj.get("query_string")
+        article["sentiment_compound_score"] = sentiment_score.get("compound")
+        article["sentiment_divergence"] = sentiment_score.get("divergence")
         cleaned_articles.append({k: article.get(k) for k in target_keys})
 
     return cleaned_articles
