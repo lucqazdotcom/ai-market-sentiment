@@ -4,12 +4,19 @@ analyzer = SentimentIntensityAnalyzer()
 
 
 def analyze(text_obj: dict) -> dict:
-
-    score = {"compound": 0, "divergence": 0}
+    scores = []
     for text in text_obj.values():
-        if text is not None:
+        if isinstance(text, str):
             vs = analyzer.polarity_scores(text)
-            score["divergence"] = abs(score.get("compound") - vs.get("compound"))
-            score["compound"] = score.get("compound") + vs.get("compound")
+            scores.append(vs["compound"])
 
-    return score
+    if not scores:
+        return {"compound": None, "divergence": None}
+
+    if len(scores) == 1:
+        return {"compound": scores[0], "divergence": None}
+
+    return {
+        "compound": sum(scores) / len(scores),
+        "divergence": max(scores) - min(scores)
+    }
