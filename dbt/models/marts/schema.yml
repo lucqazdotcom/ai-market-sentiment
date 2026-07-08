@@ -1,8 +1,8 @@
 version: 2
 
 models:
-  - name: mart_company_daily_job_inventory
-    description: "daily job inventory"
+  - name: mart_market_contradiction
+    description: "Delta between job inventory and media outlook."
     columns:
       - name: company
         description: "Company being tracked."

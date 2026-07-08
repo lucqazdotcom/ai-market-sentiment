@@ -9,6 +9,11 @@ models:
         tests:
           - not_null
 
+      - name: source_name
+        description: "Media source name."
+        tests:
+          - not_null
+
       - name: signal_topic
         description: "Signal topic."
         tests:

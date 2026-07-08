@@ -1,3 +1,6 @@
+-- NOTE: collect weekly job inventory posting by company
+-- grain: week
+
 select
     date_trunc(CAST(date as timestamp), week) as week_start_date,
     company,
