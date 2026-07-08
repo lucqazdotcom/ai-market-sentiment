@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: int_headline_sentiment
+    description: "weekly headline sentiment intensity"
+    columns:
+      - name: weekly_sentiment_intensity
+        description: "The average sum of sentiment scores."
+        tests:
+          - not_null
+
+      - name: signal_topic
+        description: "Signal topic."
+        tests:
+          - not_null
+
+      - name: week_start_date
+        description: "Truncated date to grain."
+        tests:
+          - not_null
+
+  - name: int_company_daily_job_inventory
+    description: "daily job inventory"
+    columns:
+      - name: company
+        description: "Company being tracked."
+        tests:
+          - not_null
+
+      - name: week_start_date
+        description: "Aggregated week start date."
+        tests:
+          - not_null
+
+      - name: total_visible_roles
+        description: "Total job inventory across all search terms."
+        tests:
+          - not_null
+
+      - name: search_terms_tracked
+        description: "Total job inventory across all search terms."
+        tests:
+          - not_null

@@ -18,29 +18,3 @@ models:
         description: "Total job inventory across all search terms."
         tests:
           - not_null
-
-  - name: mart_company_daily_news_headlines
-    description: "daily news headlines"
-    columns:
-      - name: publish_date
-        description: "Date news story was posted."
-        tests:
-          - not_null
-
-      - name: source_name
-        description: "News company name."
-        tests:
-          - not_null
-
-      - name: signal_topic
-        description: "Batched topic querried."
-        tests:
-          - not_null
-
-      - name: sentiment_compound_score
-        description: "Sentiment compound score on title and description of story."
-        tests:
-          - not_null
-
-      - name: sentiment_divergence
-        description: "Divergence score between pos, neutral, and neg values."
