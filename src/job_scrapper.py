@@ -46,7 +46,7 @@ def get_open_roles(url: str, search_input: list):
             "search_term": search.get("role_search_term"),
             "country": "us",
             "source": "adzuna",
-            "date": date.today().isoformat(),
+            "date_posted": date.today().isoformat(),
             "run_timestamp": datetime.now().isoformat()
         })
 

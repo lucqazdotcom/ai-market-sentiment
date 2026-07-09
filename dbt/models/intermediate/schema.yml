@@ -1,10 +1,10 @@
 version: 2
 
 models:
-  - name: int_headline_sentiment
-    description: "weekly headline sentiment intensity"
+  - name: int_headline_sentiment_topic
+    description: "weekly headline sentiment intensity by topic"
     columns:
-      - name: weekly_sentiment_intensity
+      - name: weekly_sentiment_score
         description: "The average sum of sentiment scores."
         tests:
           - not_null
@@ -21,6 +21,19 @@ models:
 
       - name: week_start_date
         description: "Truncated date to grain."
+        tests:
+          - not_null
+
+  - name: int_headline_sentiment_total
+    description: "weekly headline sentiment intensity total"
+    columns:
+      - name: week_start_date
+        description: "Truncated date to grain."
+        tests:
+          - not_null
+
+      - name: weekly_sentiment_score
+        description: "The average sum of sentiment scores."
         tests:
           - not_null
 
