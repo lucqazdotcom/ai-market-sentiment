@@ -7,16 +7,17 @@ with
 job_inventory as (
     select
         week_start_date,
-        company,
-        total_visible_roles as current_role_inventory,
-        lag(total_visible_roles) over(partition by company order by week_start_date) as previous_role_inventory,
+        sum(total_visible_roles) as current_role_inventory,
+        lag(sum(total_visible_roles)) over(order by week_start_date) as previous_role_inventory,
         round(
-        (total_visible_roles - lag(total_visible_roles) over(partition by company order by week_start_date)) /
-        nullif(lag(total_visible_roles) over(partition by company order by week_start_date), 0) * 100
+        (sum(total_visible_roles) - lag(sum(total_visible_roles)) over(order by week_start_date)) /
+        nullif(lag(sum(total_visible_roles)) over(order by week_start_date), 0) * 100
         , 2) as delta
     from {{ref('int_company_daily_job_inventory')}}
+    group by week_start_date
 ),
 
+-- BUG: prev week is not adding up properly
 headline_intensity as (
     select
         week_start_date,
