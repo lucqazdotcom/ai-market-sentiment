@@ -1,20 +1,20 @@
 version: 2
 
 models:
-  - name: mart_company_daily_job_inventory
-    description: "daily job inventory"
+  - name: mart_market_contradiction
+    description: "Delta between job inventory and media outlook."
     columns:
-      - name: company
-        description: "Company being tracked."
+      - name: week_start_date
+        description: "Week tracking."
         tests:
           - not_null
 
-      - name: day_ran
-        description: "Date for when query ran."
-        tests:
-          - not_null
+      - name: inventory_delta
+        description: "Job inventory delta w/o/w."
+        # tests:
+          # - not_null
 
-      - name: total_visible_roles
-        description: "Total job inventory across all search terms."
-        tests:
-          - not_null
+      - name: sentiment_delta
+        description: "Sentiment compound score delta w/o/w."
+        # tests:
+          # - not_null
