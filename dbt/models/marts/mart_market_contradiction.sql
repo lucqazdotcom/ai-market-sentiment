@@ -17,7 +17,6 @@ job_inventory as (
     group by week_start_date
 ),
 
--- BUG: prev week is not adding up properly
 headline_intensity as (
     select
         week_start_date,
