@@ -1,43 +1,7 @@
 version: 2
 
 models:
-  - name: int_headline_sentiment_topic
-    description: "weekly headline sentiment intensity by topic"
-    columns:
-      - name: weekly_sentiment_score
-        description: "The average sum of sentiment scores."
-        tests:
-          - not_null
-
-      - name: source_name
-        description: "Media source name."
-        tests:
-          - not_null
-
-      - name: signal_topic
-        description: "Signal topic."
-        tests:
-          - not_null
-
-      - name: week_start_date
-        description: "Truncated date to grain."
-        tests:
-          - not_null
-
-  - name: int_headline_sentiment_total
-    description: "weekly headline sentiment intensity total"
-    columns:
-      - name: week_start_date
-        description: "Truncated date to grain."
-        tests:
-          - not_null
-
-      - name: weekly_sentiment_score
-        description: "The average sum of sentiment scores."
-        tests:
-          - not_null
-
-  - name: int_company_daily_job_inventory
+  - name: int_company_postings_weekly
     description: "daily job inventory"
     columns:
       - name: company
@@ -57,5 +21,62 @@ models:
 
       - name: search_terms_tracked
         description: "Total job inventory across all search terms."
+        tests:
+          - not_null
+
+  - name: int_headline_signal
+    description: "Normalized atrribution to topic support, stripping away tone weights."
+    columns:
+      - name: week_start_date
+        description: "Aggregated week start date."
+        tests:
+          - not_null
+
+      - name: title
+        description: "Headline title."
+        tests:
+          - not_null
+
+      - name: signal_topic
+        description: "Topic name for headline grouping."
+        tests:
+          - not_null
+
+      - name: sentiment_compound_score
+        description: "VADER sentiment compound score per headline title and description."
+        tests:
+          - not_null
+
+      - name: polarity
+        description: "Topic polarity weight."
+        tests:
+          - not_null
+
+      - name: directional_score
+        description: "Polarity * pure sentiment value."
+        tests:
+          - not_null
+
+  - name: int_headline_weekly
+    description: "Weekly totals for signal topic directional score."
+    columns:
+      - name: week_start_date
+        description: "Aggregated week start date."
+        tests:
+          - not_null
+
+      - name: signal_topic
+        description: "Topic name for headline grouping."
+        tests:
+          - not_null
+
+      - name: total_headlines
+        description: "Count of all headlines per topic."
+        tests:
+          - not_null
+
+
+      - name: directional_score_total
+        description: "Sum of directional scores per topic."
         tests:
           - not_null
