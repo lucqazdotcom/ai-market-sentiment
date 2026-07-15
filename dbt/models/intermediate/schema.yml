@@ -1,7 +1,7 @@
 version: 2
 
 models:
-  - name: int_company_weekly_job_inventory
+  - name: int_company_postings_weekly
     description: "daily job inventory"
     columns:
       - name: company

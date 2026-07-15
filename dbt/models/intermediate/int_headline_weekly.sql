@@ -2,9 +2,9 @@
 -- grain: week
 SELECT
     week_start_date,
-    signal_topic
+    signal_topic,
     count(title) as total_headlines,
-    sum(directional_score) as total_directional_score
+    sum(directional_score) as directional_score_total
 from {{ref('int_headline_signal')}}
 group by
 week_start_date,

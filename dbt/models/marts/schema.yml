@@ -1,20 +1,38 @@
-# version: 2
-#
-# models:
-#   - name: mart_market_contradiction
-#     description: "Delta between job inventory and media outlook."
-#     columns:
-#       - name: week_start_date
-#         description: "Week tracking."
-#         tests:
-#           - not_null
-#
-#       - name: inventory_delta
-#         description: "Job inventory delta w/o/w."
-#         # tests:
-#           # - not_null
-#
-#       - name: sentiment_delta
-#         description: "Sentiment compound score delta w/o/w."
-#         # tests:
-#           # - not_null
+version: 2
+
+models:
+  - name: mart_market_contradiction
+    description: "Delta between job inventory and media outlook."
+    columns:
+      - name: week_start_date
+        description: "Week tracking."
+        tests:
+          - not_null
+
+      - name: inventory_delta
+        description: "Job inventory delta w/o/w."
+        # tests:
+          # - not_null
+
+      - name: sentiment_delta
+        description: "Sentiment compound score delta w/o/w."
+        # tests:
+          # - not_null
+
+  - name: mart_narrative_trend
+    description: "Weekly trend analysis by signal topic."
+    columns:
+      - name: week_start_date
+        description: "Week tracking."
+        tests:
+          - not_null
+
+      - name: inventory_delta
+        description: "Job inventory delta w/o/w."
+        # tests:
+          # - not_null
+
+      - name: sentiment_delta
+        description: "Sentiment compound score delta w/o/w."
+        # tests:
+          # - not_null
