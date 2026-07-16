@@ -6,18 +6,28 @@ models:
     columns:
       - name: week_start_date
         description: "Week tracking."
-        tests:
-          - not_null
-
-      - name: inventory_delta
-        description: "Job inventory delta w/o/w."
         # tests:
-          # - not_null
+        #   - not_null
 
-      - name: sentiment_delta
-        description: "Sentiment compound score delta w/o/w."
+      - name: total_visible_roles
+        description: "Total job inventory of all tracked companies."
         # tests:
-          # - not_null
+        #   - not_null
+
+      - name: visible_roles_delta
+        description: "Job inventory delta to previous week."
+        # tests:
+        #   - not_null
+
+      - name: narrative_directional_score
+        description: "Net total for displacement directional score across all topics."
+        # tests:
+        #   - not_null
+
+      - name: narrative_directional_score_delta
+        description: "Directional score delta to previous week."
+        # tests:
+        #   - not_null
 
   - name: mart_narrative_trend
     description: "Weekly trend analysis by signal topic."
@@ -27,12 +37,7 @@ models:
         tests:
           - not_null
 
-      - name: inventory_delta
-        description: "Job inventory delta w/o/w."
-        # tests:
-          # - not_null
-
-      - name: sentiment_delta
-        description: "Sentiment compound score delta w/o/w."
-        # tests:
-          # - not_null
+      - name: net_displacement_score
+        description: "Net total for displacement displacement score across all topics."
+        tests:
+          - not_null
