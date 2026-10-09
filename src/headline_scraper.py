@@ -1,19 +1,26 @@
+import os
+from datetime import UTC, datetime, timedelta
+from time import timezone
+
 import requests
 from dotenv import load_dotenv
-import os
-from datetime import datetime
-from constants.news_keywords import TRUSTED_DOMAINS, SIGNAL_TOPICS
+
+from constants.news_keywords import SIGNAL_TOPICS, TRUSTED_DOMAINS
 from ingestion.utils.bq_client import write_to_big_query
 from sentiment_analysis import analyze
 from utils.hash import hash_this
 
 load_dotenv()
 
+now = datetime.now(UTC).date()
+
 query_params = {
     "apiKey": os.getenv("NEWSAPI_KEY"),
-    "from": "2026-06-01",
+    # 30 day outlook allowance on NewsAPI tier
+    "from": (now - timedelta(days=30)).isoformat(),
+    "to": (now - timedelta(days=1)).isoformat(),
     "domains": TRUSTED_DOMAINS,
-    "languages": "en",
+    "language": "en",
     "sortBy": "popularity",
 }
 
@@ -32,10 +39,14 @@ def build_query() -> list:
     query_groups = []
 
     for group, targets in SIGNAL_TOPICS.items():
-        query_groups.append({
-            "signal_topic": group,
-            "query_string": " OR ".join(f"({phrase})" for phrase in targets["match_units"])
-        })
+        query_groups.append(
+            {
+                "signal_topic": group,
+                "query_string": " OR ".join(
+                    f"({phrase})" for phrase in targets["match_units"]
+                ),
+            }
+        )
 
     return query_groups
 
@@ -45,19 +56,28 @@ def get_articles(url: str, query_obj: object) -> object:
     response = requests.get(url, params=params).json()
     articles = response.get("articles")
     cleaned_articles = []
-    target_keys = ("id", "source_id", "source_name", "author", "title",
-                   "description", "url", "publish_date", "insert_date",
-                   "content", "signal_topic", "search_query",
-                   "sentiment_compound_score", "sentiment_divergence")
+    target_keys = (
+        "id",
+        "source_id",
+        "source_name",
+        "author",
+        "title",
+        "description",
+        "url",
+        "publish_date",
+        "insert_date",
+        "content",
+        "signal_topic",
+        "search_query",
+        "sentiment_compound_score",
+        "sentiment_divergence",
+    )
     for article in articles:
 
-        sentiment_score = analyze({
-            "title": article.get("title"),
-            "description": article.get("description")
-        })
-        article["id"] = hash_this(
-            f"{article.get('url')}{article.get('publish_date')}"
+        sentiment_score = analyze(
+            {"title": article.get("title"), "description": article.get("description")}
         )
+        article["id"] = hash_this(f"{article.get('url')}{article.get('publish_date')}")
         article["source_id"] = article.get("source", {}).get("id")
         article["source_name"] = article.get("source", {}).get("name")
         article["publish_date"] = article.get("publishedAt")
