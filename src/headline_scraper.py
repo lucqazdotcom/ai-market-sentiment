@@ -1,11 +1,11 @@
 import os
 from datetime import UTC, datetime, timedelta
-from time import timezone
 
 import requests
 from dotenv import load_dotenv
 
 from constants.news_keywords import SIGNAL_TOPICS, TRUSTED_DOMAINS
+from ingestion.schema.schema import HEADLINES_SCHEMA
 from ingestion.utils.bq_client import write_to_big_query
 from sentiment_analysis import analyze
 from utils.hash import hash_this
@@ -32,7 +32,7 @@ def run_headline_scraper():
 
     for query_obj in query_group:
         data = get_articles(BASE_URL, query_obj)
-        write_to_big_query(data, "raw", "headlines")
+        write_to_big_query(data, "raw", "headlines", HEADLINES_SCHEMA)
 
 
 def build_query() -> list:
