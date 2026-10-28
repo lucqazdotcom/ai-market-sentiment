@@ -1,10 +1,13 @@
-import requests
 import os
 import time
+from datetime import date, datetime
+
+import requests
 from dotenv import load_dotenv
-from datetime import datetime, date
+
 from constants.companies import COMPANIES
 from constants.roles import ROLES
+from ingestion.schema.schema import JOB_INVENTORY_SCHEMA
 from ingestion.utils.bq_client import write_to_big_query
 
 load_dotenv()
@@ -16,7 +19,7 @@ base_query_params = {
     "results_per_page": 50,
     "sort_by": "date",
     "company": "",
-    "title_only": ""
+    "title_only": "",
     # "country": "us",
     # "page_number": 1,
 }
@@ -34,28 +37,30 @@ def get_open_roles(url: str, search_input: list):
         params = {
             **base_query_params,
             "company": search.get("company_search_term"),
-            "title_only": search.get("role_search_term")
+            "title_only": search.get("role_search_term"),
         }
 
         response = requests.get(BASE_URL, params=params).json()
-        print(response.get("count"))
-        job_inventory.append({
-            "count": response.get("count"),
-            "company": search.get("company_name"),
-            "role_group": search.get("role_group"),
-            "search_term": search.get("role_search_term"),
-            "country": "us",
-            "source": "adzuna",
-            "date_posted": date.today().isoformat(),
-            "run_timestamp": datetime.now().isoformat()
-        })
+        job_inventory.append(
+            {
+                "count": response.get("count"),
+                "company": search.get("company_name"),
+                "role_group": search.get("role_group"),
+                "search_term": search.get("role_search_term"),
+                "country": "us",
+                "source": "adzuna",
+                "date_posted": date.today().isoformat(),
+                "run_timestamp": datetime.now().isoformat(),
+            }
+        )
 
         # NOTE: Adzuna rate limit @ 25 hits/ min - below is a helper
         if (i + 1) % 25 == 0:
-            write_to_big_query(job_inventory, "raw", "job_inventory")
+            write_to_big_query(
+                job_inventory, "raw", "job_inventory", JOB_INVENTORY_SCHEMA
+            )
             job_inventory.clear()
-            print(
-                f"Job inventory cleared with {len(job_inventory)} remaining.")
+            print(f"Job inventory cleared with {len(job_inventory)} remaining.")
             time.sleep(60)
 
 
@@ -63,9 +68,11 @@ def create_search_candidate():
     for company, alias in COMPANIES.items():
         for role_group, roles in ROLES.items():
             for role_name in roles:
-                search_candidates.append({
-                    "company_name": company,
-                    "company_search_term": alias,
-                    "role_group": role_group,
-                    "role_search_term": role_name
-                })
+                search_candidates.append(
+                    {
+                        "company_name": company,
+                        "company_search_term": alias,
+                        "role_group": role_group,
+                        "role_search_term": role_name,
+                    }
+                )
