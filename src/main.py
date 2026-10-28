@@ -10,7 +10,7 @@ load_dotenv()
 
 
 def main():
-    # run_headline_scraper()
+    run_headline_scraper()
     run_job_scrapper()
 
 
