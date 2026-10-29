@@ -60,6 +60,10 @@ def get_open_roles(url: str, search_input: list):
             print(f"Job inventory cleared with {len(job_inventory)} remaining.")
             time.sleep(60)
 
+    # NOTE: capture remaining results
+    if job_inventory:
+        write_to_big_query(job_inventory, "raw", "job_inventory", JOB_INVENTORY_SCHEMA)
+
 
 def create_search_candidate():
     for company, alias in COMPANIES.items():
