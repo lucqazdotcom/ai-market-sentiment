@@ -1,7 +1,7 @@
 -- NOTE: polarity direction per topic per headline
 -- grain: per headline
 select
-    date_trunc(CAST(p.publish_date as timestamp), week) as week_start_date,
+    date_trunc(CAST(p.publish_date as date), week) as week_start_date,
     p.title,
     p.signal_topic,
     p.sentiment_compound_score,

@@ -16,12 +16,9 @@ BASE_URL = "https://api.adzuna.com/v1/api/jobs/us/search/1"
 base_query_params = {
     "app_id": os.getenv("ADZUNA_APP_ID"),
     "app_key": os.getenv("ADZUNA_API_KEY"),
-    "results_per_page": 50,
     "sort_by": "date",
     "company": "",
     "title_only": "",
-    # "country": "us",
-    # "page_number": 1,
 }
 search_candidates = []
 
@@ -62,6 +59,10 @@ def get_open_roles(url: str, search_input: list):
             job_inventory.clear()
             print(f"Job inventory cleared with {len(job_inventory)} remaining.")
             time.sleep(60)
+
+    # NOTE: capture remaining results
+    if job_inventory:
+        write_to_big_query(job_inventory, "raw", "job_inventory", JOB_INVENTORY_SCHEMA)
 
 
 def create_search_candidate():
