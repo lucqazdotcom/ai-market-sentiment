@@ -75,7 +75,6 @@ models:
         tests:
           - not_null
 
-
       - name: directional_score_total
         description: "Sum of directional scores per topic."
         tests:
