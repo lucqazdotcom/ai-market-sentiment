@@ -1,35 +1,86 @@
-# AI market sentiment
+# AI Market Sentiment
 
-Track whether open engineering roles at each Magnificent Seven company are rising,
-falling, or stable during periods when the AI replacement narrative grows.
+An exploratory data pipeline comparing AI displacement narratives in the news with
+engineering hiring indicators across the Magnificent Seven companies.
 
-The pipeline collects news through NewsAPI and US job-search counts through Adzuna,
-scores headline sentiment with VADER, loads raw records into BigQuery, and uses dbt
-to produce weekly summaries.
+The guiding question:
 
-## Current progress
+> Are tracked engineering roles rising, falling, or stable during periods when the
+> AI replacement narrative grows?
+
+## How it works
+
+1. Collect news articles through NewsAPI across seven narrative topics.
+2. Collect US job-search counts through Adzuna for seven companies and nine role
+   search terms.
+3. Score article titles and descriptions using VADER.
+4. Append observations to BigQuery raw tables.
+5. Use dbt to deduplicate observations, calculate weekly metrics, and compare
+   narrative and hiring trends.
+
+Tracked companies: Alphabet, Amazon, Apple, Meta, Microsoft, Nvidia, and Tesla.
+
+## Metrics
+
+### Hiring indicator
+
+Job staging retains the latest valid observation for each company, role search,
+role group, source, country, and collection date. Currently, valid means the count
+is not null.
+
+Daily search counts are summed per company, then averaged within each calendar
+week. Weekly outputs include days observed and average search-term coverage.
+
+This measures **tracked search inventory**, rather than unique job openings.
+Searches such as “developer” and “software developer” can overlap.
+
+### Narrative indicator
+
+Articles are deduplicated by URL and signal topic, retaining the latest collected
+version. An article matching multiple topics retains each association.
+
+Each article/topic receives a directional score:
+
+```text
+directional score = topic polarity × absolute VADER compound sentiment
+```
+
+| Topic | Polarity |
+|---|---:|
+| Workforce reduction | +1 |
+| AI displacement | +1 |
+| Hiring contraction | +1 |
+| Junior displacement | +1 |
+| Corporate restructuring | +1 |
+| Talent demand | −1 |
+| AI productivity | 0 |
+
+Positive scores indicate displacement pressure; negative scores indicate
+engineering demand. Weekly totals summarize this topic-based narrative indicator.
+
+## Current status
 
 Implemented:
 
-- Seven tracked companies and nine role search terms across five role groups.
-- News searches across seven narrative topics and a curated list of domains.
-- Title/description sentiment scoring and divergence calculation.
-- Explicit BigQuery schemas and append-based loading with table creation.
-- dbt staging, intermediate weekly models, topic polarity seeds, and reporting marts.
-- Basic dbt `not_null` checks.
+- Both API collectors and explicit BigQuery schemas.
+- Append-only raw storage and staging deduplication.
+- Title and description sentiment scoring.
+- Weekly company hiring averages and narrative aggregates.
+- Reporting marts comparing hiring and narrative movement.
 
-This is a prototype. A successful end-to-end run has not been verified in this
-review, and the final mart currently aggregates all companies rather than answering
-the per-company question above. There is no dashboard, scheduler, CI configuration,
-or Python test suite yet.
+All seven dbt models have completed a successful run. That establishes model
+execution; data-quality test coverage remains limited.
+
+The current comparison mart aggregates hiring across companies. Per-company
+comparisons and rising/falling/stable classifications remain to be completed.
 
 ## Setup
 
-Run the following commands from the repository root unless specified otherwise.
+### Python environment
 
-### 1. Install Python dependencies
+The project pins Python 3.13.16 through mise.
 
-The repository pins Python 3.13.16 in `mise.toml`. If you use mise:
+From the repository root:
 
 ```bash
 mise install
@@ -39,57 +90,50 @@ python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-Alternatively, create `venv` using your Python 3.13 installation and run the same
-activation and pip commands. `requirements.txt` automatically applies the pins in
-`constraints.txt`. Installation of these pins has not been validated in this review.
+Alternatively, create the virtual environment using an existing Python 3.13
+installation. The requirements file automatically applies `constraints.txt`.
 
-### 2. Configure API credentials
+### Environment variables
 
-Create a `.env` file in the repository root:
+Create `.env` in the repository root:
 
 ```dotenv
-GCP_PROJECT_ID=your-gcp-project-id
+GCP_PROJECT_ID=your-project-id
 NEWSAPI_KEY=your-newsapi-key
 ADZUNA_APP_ID=your-adzuna-app-id
 ADZUNA_API_KEY=your-adzuna-api-key
 HASH_SIZE=32
 ```
 
-News collection requires a NewsAPI key; job collection requires an Adzuna app ID
-and API key. `HASH_SIZE` is required for headline IDs and must be an integer from
-1 to 64. The current hash helper also uses this value as its hash key.
+The collectors load this file automatically. It is excluded from Git.
+`HASH_SIZE` must be an integer from 1 to 64 and controls the headline hash length.
 
-Python loads `.env` automatically. It is ignored by Git; keep credentials out of
-commits.
+### Google Cloud
 
-### 3. Configure Google Cloud and BigQuery
-
-Install the Google Cloud CLI, enable the BigQuery API for your project, and set up
-Application Default Credentials:
+Install the Google Cloud CLI, enable the BigQuery API, and authenticate:
 
 ```bash
-gcloud auth application-default login
+gcloud auth login
 gcloud config set project YOUR_PROJECT_ID
+gcloud auth application-default login
+gcloud auth application-default set-quota-project YOUR_PROJECT_ID
 ```
 
-Your authenticated identity needs permission to create BigQuery jobs and to read,
-create, and write the pipeline's tables. For automation, configure an appropriate
-service identity instead of relying on an interactive login.
-
-Create a `raw` dataset and an analytics dataset, such as `analytics`, in the same
-BigQuery location. For example, using the US multi-region:
+Create `raw` and `analytics` datasets in the same location. For US datasets:
 
 ```bash
 bq --location=US mk --dataset YOUR_PROJECT_ID:raw
 bq --location=US mk --dataset YOUR_PROJECT_ID:analytics
 ```
 
-Skip dataset creation if they already exist. The loader creates missing raw tables
-using the schemas in `src/ingestion/schema/schema.py`; it does not create datasets.
+Skip creation for existing datasets. Your identity needs permission to run BigQuery
+jobs and read, create, and write the relevant tables.
 
-### 4. Configure dbt
+The Python loader creates missing raw tables, but does not create datasets.
 
-Create `~/.dbt/profiles.yml` with the profile name expected by `dbt/dbt_project.yml`:
+### dbt connection
+
+Create `~/.dbt/profiles.yml`:
 
 ```yaml
 ai_market_analysis:
@@ -104,95 +148,62 @@ ai_market_analysis:
       threads: 4
 ```
 
-Use the location of your datasets. In `dbt/models/staging/sources.yml`, replace the
-hardcoded `database: ai-sentiment-analysis-498901` with your project ID. This source
-setting, the dbt profile project, and `GCP_PROJECT_ID` must point to the intended
-project. dbt does not automatically load the Python `.env` file.
+Match `location` to your datasets. Update the source project in
+`dbt/models/staging/sources.yml` to match your project. The profile, source project,
+and `GCP_PROJECT_ID` should point to the intended project. dbt does not load the
+Python `.env` file automatically.
 
-Check connectivity:
+Verify the connection from the repository root:
 
 ```bash
 cd dbt
 dbt debug
-cd ..
 ```
 
-## Run the pipeline
+## Run
 
-The current entry point runs **job collection only**:
+From the repository root, with the virtual environment activated:
 
 ```bash
 python src/main.py
 ```
 
-To run headline collection separately from the repository root:
+This runs both collectors and appends observations to BigQuery. Job collection
+pauses for 60 seconds after batches of 25 requests.
 
-```bash
-PYTHONPATH=src python -c 'from headline_scraper import run_headline_scraper; run_headline_scraper()'
-```
-
-Both commands call external APIs and append records to BigQuery. Job collection
-pauses for 60 seconds after each batch of 25 searches. Repeated collection runs can
-produce duplicate or overlapping data; see the known issues below.
-
-After both raw tables contain data, load the topic polarity seed and build/test the
-models:
+Then, from the repository root, load the polarity mapping, build the models, and
+run their configured tests:
 
 ```bash
 cd dbt
-dbt seed
+dbt seed --select signal_topic_polarity
 dbt build
 ```
 
-`dbt build` is currently blocked by the job date-column mismatch described below.
-The reporting models are `mart_narrative_trend` and `mart_market_contradiction`.
+Reporting outputs:
 
-## Known issues and remaining work
+- `mart_narrative_trend`: weekly net displacement narrative score.
+- `mart_market_contradiction`: aggregate hiring and narrative scores with changes
+  from the previous available observation.
 
-### Collection and transformation bugs
+## Limitations
 
-- **Job results are dropped:** only batches of 25 are written. Of 63 configured
-  searches, the final 13 results are never saved.
-- **Job date mismatch:** `int_company_postings_weekly` references `date`, but the
-  collector and raw schema use `date_posted`.
-- **Repeated initialization duplicates searches:** the global job-search list is
-  appended to without being reset.
-- **Headline IDs use an unassigned date:** the hash is calculated before
-  `publishedAt` is mapped to `publish_date`.
-- API calls lack timeouts, status validation, and retries. News collection fetches
-  only one page per topic.
-- The entry point does not run both collectors or invoke dbt.
+- Overlapping job searches can count the same opening more than once.
+- Adzuna coverage represents one source and the US market.
+- Incomplete collection days or weeks can affect comparisons.
+- News collection currently fetches one page per topic.
+- Topic membership does not establish whether an article supports or disputes
+  displacement.
+- Sentiment strength measures language tone, rather than evidence strength.
+- Articles can contribute to multiple topic scores.
+- Comparisons are exploratory and do not establish that AI causes hiring changes.
 
-### Measurement and reporting gaps
+## Remaining work
 
-- Weekly job inventory sums repeated snapshots and overlapping search counts.
-  Collection frequency can therefore change reported totals without an underlying
-  increase in open jobs.
-- Headline collection repeatedly appends an overlapping 30-day window without
-  deduplication.
-- Topic polarity multiplied by absolute sentiment strength does not establish
-  whether an article supports or disputes an AI replacement claim.
-- The final comparison combines companies. Per-company comparisons,
-  rising/falling/stable thresholds, and missing-week handling remain to be defined.
-- The comparison mart's tests are commented out; Python tests are absent.
-
-Prioritize collection fixes and a verified end-to-end build, then settle the
-measurement definitions before adding scheduling, monitoring, and a dashboard.
-
-## Repository layout
-
-```text
-src/
-  main.py                  Entry point (currently jobs only)
-  headline_scraper.py       NewsAPI collection and sentiment enrichment
-  job_scrapper.py           Adzuna job-count snapshots
-  sentiment_analysis.py     VADER scoring
-  constants/                Companies, roles, topics, and news domains
-  ingestion/                BigQuery schemas and loading
-dbt/
-  seeds/                    Topic polarity mapping
-  models/staging/           Raw source wrappers
-  models/intermediate/      Headline signals and weekly aggregates
-  models/marts/             Narrative and market comparison outputs
-tests/                      Placeholder; no Python tests yet
-```
+- Preserve company detail in the final comparison.
+- Define rising/falling/stable thresholds.
+- Add uniqueness, completeness, and coverage checks.
+- Handle missing weeks and signed narrative-score changes explicitly.
+- Improve API error handling, retries, and pagination.
+- Correct headline ID construction and reset job-search candidates between runs.
+- Add scheduling, monitoring, and a dashboard.
